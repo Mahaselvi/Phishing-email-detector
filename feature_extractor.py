@@ -1,7 +1,7 @@
 import re
 import numpy as np
 
-IP_PATTERN = re.compile(r'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
+IP_PATTERN = re.compile(r'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
 URGENT_KEYWORDS = ["verify","urgent","suspended","act now","confirm","password","click here","limited time","account locked"]
 
 
@@ -36,7 +36,7 @@ def extract_structural_features(parsed: dict)->dict:
             url_domains.add(m.group(1).lower())
 
 
-    sender_domain_mismatch=bool(sender_domain) and bool(sender_domain) and (sender_domain.lower() not in url_domains)
+    sender_domain_mismatch=bool(sender_domain) and (sender_domain.lower() not in url_domains)
 
     has_html=bool(re.search(r'<\s*html', body, re.IGNORECASE))
     has_form=bool(re.search(r'<\s*/?\s*form', body, re.IGNORECASE))
@@ -51,10 +51,10 @@ def extract_structural_features(parsed: dict)->dict:
         "has_ip_url": has_ip_url,
         "has_at_in_url": has_at_in_url,
         "sender_domain_mismatch": sender_domain_mismatch,
+        "name_domain_mismatch": name_domain_mismatch,
         "has_html": has_html,
         "has_form": has_form,
         "has_iframe": has_iframe,
         "urgent_keyword_count": urgent_keyword_count,
-        "name_domain_mismatch": name_domain_mismatch
     }
 
