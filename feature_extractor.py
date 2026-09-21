@@ -36,7 +36,7 @@ def extract_structural_features(parsed: dict)->dict:
             url_domains.add(m.group(1).lower())
 
 
-    sender_domain_mismatch=bool(sender_domain) and (sender_domain.lower() not in url_domains)
+    sender_domain_mismatch=bool(sender_domain) and bool(url_domains) and (sender_domain.lower() not in url_domains)
 
     has_html=bool(re.search(r'<\s*html', body, re.IGNORECASE))
     has_form=bool(re.search(r'<\s*/?\s*form', body, re.IGNORECASE))
@@ -44,14 +44,14 @@ def extract_structural_features(parsed: dict)->dict:
 
     urgent_keyword_count=sum(1 for kw in URGENT_KEYWORDS if kw in body.lower())
 
-    name_domain_mismatch=_name_domain_mismatch(sender_display_name, sender_domain)
+    sender_name_domain_mismatch=_name_domain_mismatch(sender_display_name, sender_domain)
 
     return{
         "num_urls": num_urls,
         "has_ip_url": has_ip_url,
         "has_at_in_url": has_at_in_url,
         "sender_domain_mismatch": sender_domain_mismatch,
-        "name_domain_mismatch": name_domain_mismatch,
+        "sender_name_domain_mismatch": sender_name_domain_mismatch,
         "has_html": has_html,
         "has_form": has_form,
         "has_iframe": has_iframe,
