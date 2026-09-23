@@ -8,7 +8,7 @@ from feature_extractor import build_feature_vector
 from SHAP_Explainer import generate_explanations
 
 # ---------- Load model artifacts (once, cached) ----------
-@st.cache_resource
+@st.cache_resource(show_spinner="Phishing Email Detector loading...")
 def load_artifacts():
     model = joblib.load("model.pkl")
     vectorizer = joblib.load("vectorizer.pkl")
@@ -22,7 +22,7 @@ def load_artifacts():
     # must match the exact concat order used in build_feature_vector: tfidf first, then structural
     all_feature_names = tfidf_feature_names + structural_feature_names
     return model, vectorizer, explainer, all_feature_names
-
+    
 model, vectorizer, explainer, all_feature_names = load_artifacts()
 
 # ---------- Page setup ----------
@@ -51,8 +51,10 @@ if analyze_clicked:
             prediction = model.predict([feature_vector])[0]
             proba = model.predict_proba([feature_vector])[0]
             phishing_probability=proba[1]
-            override_triggered=structural_features['has_ip_url']==1 or structural_features['sender_domain_mismatch']==1
-            if override_triggered:
+            has_ip=structural_features['has_ip_url']==1
+            domain_mismatch=structural_features['sender_domain_mismatch']==1
+            override_triggered=has_ip or domain_mismatch
+            if domain_mismatch:
                 prediction=1
                 #phishing_probability=0.99 
             else:
@@ -62,11 +64,11 @@ if analyze_clicked:
         # ---------- Result ----------
         st.divider()
         if prediction == 1:
-            st.error(f"⚠️ **Phishing detected** ({confidence:.1f}% confidence)")
+            st.error(f"⚠️ **Phishing detected**")# ({confidence:.1f}% confidence)")
         else:
-            st.success(f"✅ **Looks legitimate** ({confidence:.1f}% confidence)")
+            st.success(f"✅ **Looks legitimate**")# ({confidence:.1f}% confidence)")
 
-        # ---------- Parsed fields (transparency for the user/judges) ----------
+        # ---------- Parsed fields----------
         with st.expander("Parsed email fields"):
             st.write(f"**Sender:** {parsed['sender'] or '(not detected)'}")
             st.write(f"**Subject:** {parsed['subject'] or '(not detected)'}")
@@ -77,8 +79,10 @@ if analyze_clicked:
         # ---------- Explanation / indicators ----------
         st.subheader("Key indicators")
         flags = []
-        if override_triggered:
-            st.warning("⚠️ Flagged automatically: contains a raw IP-based link or sender/domain mismatch — a strong phishing indicator regardless of model confidence.")
+        if has_ip:
+            st.warning("⚠️ **Critical Security Alert:** This email contains a URL using a raw IP address instead of a domain name (a classic phishing indicator).")
+        if domain_mismatch:
+            st.warning("⚠️ **Critical Security Alert:** The sender's domain does not match the domain found in the email's links (possible domain spoofing).")
         if structural_features["has_ip_url"]:
             flags.append("Contains a URL using a raw IP address instead of a domain")
         if structural_features["sender_domain_mismatch"]:
@@ -95,29 +99,47 @@ if analyze_clicked:
         if flags:
             for f in flags:
                 st.write(f"- {f}")
-        else:
+        elif not override_triggered:
             st.write("No major structural red flags detected — prediction is mainly text-pattern based.")
 
-        # ---------- SHAP-based explanation (model-driven, per-prediction) ----------
+        # ---------- SHAP-based explanation ----------
         st.subheader("Why the model made this decision")
+        st.caption("📊 Explanation derived from SHAP (SHapley Additive exPlanations) values")
         with st.spinner("Computing feature contributions..."):
             shap_values = explainer.shap_values(np.array([feature_vector]))
-            # For binary classifiers, some SHAP explainers return a list [class0_vals, class1_vals]
             if isinstance(shap_values, list):
-                shap_values = shap_values[1]  # contributions toward the "phishing" class
+                shap_values = shap_values[1]  
             shap_values = np.array(shap_values).flatten()
 
             contributions = list(zip(all_feature_names, shap_values))
-            contributions.sort(key=lambda x: abs(x[1]), reverse=True)
-            top_contributions = contributions[:6]
+            
+            positives = [c for c in contributions if c[1] >= 0]
+            negatives = [c for c in contributions if c[1] < 0]
+            
+            positives.sort(key=lambda x: abs(x[1]), reverse=True)
+            negatives.sort(key=lambda x: abs(x[1]), reverse=True)
 
-        # Bar chart — visual, no raw numbers shown to the user
-        chart_df = pd.DataFrame(top_contributions, columns=["feature", "shap_value"]).set_index("feature")
-        st.bar_chart(chart_df)
+            if prediction == 1:
+                # Phishing: Only top 6 risk-increasing features
+                top_features = positives[:6]
+                chart_data = positives[:6]
+            else:
+                # Legitimate: Only top 6 safety-supporting features
+                top_features = negatives[:6]
+                # Use absolute values for the chart so bars render cleanly above the axis
+                chart_data = [(feat, abs(val)) for feat, val in negatives[:6]]
 
-        # Plain-language sentences generated from the same top contributions
+        # Render bar chart matching the context
+        if chart_data:
+            chart_df = pd.DataFrame(chart_data, columns=["feature", "shap_value"]).set_index("feature")
+            st.bar_chart(chart_df)
+        else:
+            st.info("No significant contributing features found.")
+
+        # Plain-language sentences using only the filtered top features
         st.write("**In words:**")
-        for sentence in generate_explanations(top_contributions):
+        ordered_sentences = generate_explanations(top_features)
+        for sentence in ordered_sentences:
             st.write(f"- {sentence}")
 
 # ---------- Footer ----------
