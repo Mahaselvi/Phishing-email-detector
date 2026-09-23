@@ -5,7 +5,7 @@ import pandas as pd
 
 from email_parser import parse_raw_email
 from feature_extractor import build_feature_vector
-from shap_explainer import generate_explanations
+from SHAP_Explainer import generate_explanations
 
 # ---------- Load model artifacts (once, cached) ----------
 @st.cache_resource
@@ -15,7 +15,7 @@ def load_artifacts():
     explainer = joblib.load("explainer.pkl")   # SHAP TreeExplainer, saved from the notebook
     structural_feature_names = [
         "num_urls", "has_ip_url", "has_at_in_url", "sender_domain_mismatch",
-        "sender_name_domain_mismatch", "has_html", "has_form", "has_iframe",
+        "has_html", "has_form", "has_iframe",
         "urgent_keyword_count",
     ]
     tfidf_feature_names = [f"tfidf:{w}" for w in vectorizer.get_feature_names_out()]
@@ -50,7 +50,14 @@ if analyze_clicked:
 
             prediction = model.predict([feature_vector])[0]
             proba = model.predict_proba([feature_vector])[0]
-            confidence = proba[int(prediction)] * 100
+            phishing_probability=proba[1]
+            override_triggered=structural_features['has_ip_url']==1 or structural_features['sender_domain_mismatch']==1
+            if override_triggered:
+                prediction=1
+                #phishing_probability=0.99 
+            else:
+                prediction=1 if phishing_probability>0.5 else 0
+            confidence = phishing_probability* 100 if prediction==1 else (1-phishing_probability)*100
 
         # ---------- Result ----------
         st.divider()
@@ -70,12 +77,12 @@ if analyze_clicked:
         # ---------- Explanation / indicators ----------
         st.subheader("Key indicators")
         flags = []
+        if override_triggered:
+            st.warning("⚠️ Flagged automatically: contains a raw IP-based link or sender/domain mismatch — a strong phishing indicator regardless of model confidence.")
         if structural_features["has_ip_url"]:
             flags.append("Contains a URL using a raw IP address instead of a domain")
         if structural_features["sender_domain_mismatch"]:
             flags.append("Sender domain does not match the domain(s) in the email's links")
-        if structural_features["sender_name_domain_mismatch"]:
-            flags.append("Sender's display name doesn't match their email domain (possible spoofing)")
         if structural_features["has_form"]:
             flags.append("Email contains an HTML form (often used to harvest credentials)")
         if structural_features["has_iframe"]:

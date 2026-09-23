@@ -68,7 +68,7 @@ def build_feature_vector(parsed: dict,vectorizer)->tuple[np.ndarray,dict]:
     tfidf_vec=vectorizer.transform([text]).toarray()[0]
 
     structural=extract_structural_features(parsed)
-    structural_vec=np.array(list(structural.values()))
+    structural_vec=np.array(list(structural.values()),dtype=float)
 
     full_vector=np.concatenate([tfidf_vec,structural_vec]) 
     return full_vector,structural   
