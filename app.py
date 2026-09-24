@@ -30,11 +30,78 @@ st.set_page_config(page_title="Phishing Email Detector", page_icon="🎣")
 st.title("🎣 Phishing Email Detector")
 st.write("Paste a full email (including headers, if available) to check if it's phishing.")
 
+# ---------- Sample emails for demo ----------
+SAMPLE_PHISHING_1 = """From: \"USAA\" <security@totallyfake-bank.com>
+Subject: Urgent: Verify your account now
+ 
+Dear Customer,
+ 
+Your account has been suspended due to suspicious activity. Please click here to verify your account immediately:
+ 
+http://192.168.1.1/secure-login
+ 
+Failure to verify within 24 hours will result in permanent account closure.
+ 
+USAA Security Team
+"""
+ 
+SAMPLE_PHISHING_2 = """From: \"PayPal\" <support@paypal-security-alerts.com>
+Subject: Your payment was declined
+ 
+Dear User,
+ 
+We were unable to process your recent payment. Please update your billing details here:
+ 
+http://www.paypal.com/billing-update
+ 
+Thank you,
+PayPal Team
+"""
+ 
+SAMPLE_LEGIT_1 = """From: Sylvia Hu <sylvia.hu@enron.com>
+Subject: Weekly report follow-up
+ 
+Hi Jay, just following up on the weekly report for our meeting on Friday. Let me know if you need anything.
+ 
+Thanks,
+Sylvia
+"""
+ 
+SAMPLE_LEGIT_2 = """From: GitHub <noreply@github.com>
+Subject: Your weekly digest
+ 
+Hi there,
+ 
+Here's your weekly activity summary. View it here:
+ 
+http://github.com/notifications
+ 
+Thanks,
+The GitHub Team
+"""
+if "raw_email_input" not in st.session_state:
+    st.session_state.raw_email_input = ""
+ 
+def _set_sample(text):
+    st.session_state.raw_email_input = text
+ 
+st.write("**Try a sample email:**")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.button("Phishing Example 1", on_click=_set_sample, args=(SAMPLE_PHISHING_1,))
+with col2:
+    st.button("Phishing Example 2", on_click=_set_sample, args=(SAMPLE_PHISHING_2,))
+with col3:
+    st.button("Legitimate Example 1", on_click=_set_sample, args=(SAMPLE_LEGIT_1,))
+with col4:
+    st.button("Legitimate Example 2", on_click=_set_sample, args=(SAMPLE_LEGIT_2,))
+
 # ---------- Input ----------
 raw_email = st.text_area(
     "Paste the email here:",
     height=300,
-    placeholder="From: someone@example.com\nTo: you@example.com\nSubject: ...\n\nBody text..."
+    placeholder="From: someone@example.com\nTo: you@example.com\nSubject: ...\n\nBody text...",
+    key="raw_email_input"
 )
 
 analyze_clicked = st.button("Analyze Email", type="primary")
@@ -54,7 +121,7 @@ if analyze_clicked:
             has_ip=structural_features['has_ip_url']==1
             domain_mismatch=structural_features['sender_domain_mismatch']==1
             override_triggered=has_ip or domain_mismatch
-            if domain_mismatch:
+            if override_triggered:
                 prediction=1
                 #phishing_probability=0.99 
             else:
@@ -137,8 +204,8 @@ if analyze_clicked:
             st.info("No significant contributing features found.")
 
         # Plain-language sentences using only the filtered top features
-        st.write("**In words:**")
-        ordered_sentences = generate_explanations(top_features)
+        st.write("**Key Factors for the mail to be classified as** "+ ("**Legitimate:**" if prediction==0 else "**Phishing:**"))
+        ordered_sentences = generate_explanations(top_features,prediction)
         for sentence in ordered_sentences:
             st.write(f"- {sentence}")
 
