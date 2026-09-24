@@ -31,53 +31,178 @@ st.title("🎣 Phishing Email Detector")
 st.write("Paste a full email (including headers, if available) to check if it's phishing.")
 
 # ---------- Sample emails for demo ----------
-SAMPLE_PHISHING_1 = """From: \"USAA\" <security@totallyfake-bank.com>
-Subject: Urgent: Verify your account now
- 
-Dear Customer,
- 
-Your account has been suspended due to suspicious activity. Please click here to verify your account immediately:
- 
-http://192.168.1.1/secure-login
- 
-Failure to verify within 24 hours will result in permanent account closure.
- 
-USAA Security Team
+SAMPLE_PHISHING_1 = """Subject: 𝗗𝗲𝗮𝗱𝗹𝗶𝗻𝗲 𝗔𝗽𝗽𝗿𝗼𝗮𝗰𝗵𝗶𝗻𝗴: 𝗨𝗚𝗖-𝗔𝗹𝗶𝗴𝗻𝗲𝗱 𝗜𝗻𝘁𝗲𝗿𝗻𝘀𝗵𝗶𝗽 𝗖𝗼𝗺𝗽𝗹𝗶𝗮𝗻𝗰𝗲 | 𝟮𝟬𝟮𝟲 𝗕𝗮𝘁𝗰𝗵 | 𝗦𝗔𝗦𝗧𝗥𝗔 𝗨𝗻𝗶𝘃𝗲𝗿𝘀𝗶𝘁𝘆
+From: SRIRAMOJU RUSHI KUMAR SRIRAMOJU RUSHI KUMAR<21211a05v0@bvrit.ac.in>
+undisclosed-recipients
+129156098@sastra.ac.in
+Dear Student,
+
+To solve this growing employability gap, Unlox Academy has launched the JobBridge Professional Program under a Government-aligned Skill Development Initiative, making industry-focused training accessible to shortlisted students at a highly subsidized cost.
+
+How to Apply:
+
+Mandatory for students to complete the Form to register
+Our HR Team will contact shortlisted candidates for the next steps.
+
+Apply Now:- https://forms.gle/grST4719WiJKsyZ36
+
+Join the Official WhatsApp Group: https://chat.whatsapp.com/GSRSRDn3ws7FkSk4RUsM6Z
+
+This is why students across India are spending anywhere between ₹40,000 to ₹1,00,000+ on private professional programs just to improve their employability after college.
+
+But the reality is — many of those programs offer only recorded classes, generic certificates, and very little real mentorship or placement support.
+
+What Makes This Program Different?
+Unlike traditional training platforms, this program focuses on complete career transformation through:
+
+Industry Training
+38+ Live Mentorship Sessions
+
+Generative AI, Low-Code & Emerging Technologies
+
+Flexible Evening Schedule
+
+6-Month LMS Access + Learning Tablet
+
+Structured Internship Experience
+10+ Real-World Projects
+
+1 Capstone Project
+
+Industry-Simulated Work Environment
+
+Mentor Evaluation & Performance Reports
+
+Placement Preparation
+AI-Based Mock Interviews
+
+Resume & Portfolio Building
+
+Weekly Career Bootcamps
+
+Hiring & Job Opportunity Access
+
+Verified Certifications
+Upon successful completion, students receive:
+
+Government-Aligned Certification with Verification ID
+
+Co-Branded Internship Certificate
+
+Digitally Verifiable Credentials
+
+Aligned with:
+
+NASSCOM
+
+Skill India
+
+Startup India
+
+FutureSkills Prime Frameworks
+
+Students who gain industry exposure early usually stand out during placements, while many others struggle later trying to catch up with market expectations.
+
+The current intake has limited mentorship and internship slots, and registrations are being processed based on shortlisting.
+
+Many students delay these opportunities assuming they will prepare “later” — but by the time placements begin, competition becomes much harder.
+
+If you are serious about strengthening your resume, internship profile, and placement readiness, this may be one of the most valuable opportunities available during your academic journey.
+
+Apply Now: https://forms.gle/grST4719WiJKsyZ36
+
+Join the Official WhatsApp Group: https://chat.whatsapp.com/GSRSRDn3ws7FkSk4RUsM6Z
+
+Regards,
+Team Unlox Academy
+Career & Industry Readiness Division
+
+
+Engineering Sciences
+
+BVRIT | SVECW | VIT | BVRITH
+
+Medical Sciences
+
+VDC | SVCP | VIPER | BVRICE
 """
  
-SAMPLE_PHISHING_2 = """From: \"PayPal\" <support@paypal-security-alerts.com>
-Subject: Your payment was declined
- 
-Dear User,
- 
-We were unable to process your recent payment. Please update your billing details here:
- 
-http://www.paypal.com/billing-update
- 
-Thank you,
-PayPal Team
+SAMPLE_PHISHING_2 = """From: Gretchen Suggs <externalsep1@loanofficertool.com>
+To: user2.2@gvc.ceas-challenge.cc
+Tue, 05 Aug 2008 19:31:21 -0400
+SpecialPricesPharmMoreinfo
+WelcomeFastShippingCustomerSupport http://7iwfna.blu.livefilestore.com/y1pXdX3kwzhBa8xhXv8tdHbjHn7T...
 """
  
-SAMPLE_LEGIT_1 = """From: Sylvia Hu <sylvia.hu@enron.com>
-Subject: Weekly report follow-up
- 
-Hi Jay, just following up on the weekly report for our meeting on Friday. Let me know if you need anything.
- 
-Thanks,
-Sylvia
+SAMPLE_LEGIT_1 = """Subject: TEJAS 2026 – AI Innovation Challenge / Hackathon & Codethon Poster and Event Details
+From: Dr. V. S. Shankar Sriram .<sriram@it.sastra.edu>
+To: tnjstudents@sastra.ac.in
+Dear All,
+Get ready to innovate, collaborate, and create impactful AI-driven solutions at TEJAS 2026, SASTRA’s exciting AI Innovation Challenge, Hackathon & Codethon!
+Join forces with your team and turn your ideas into solutions for a smarter, more inclusive, and sustainable future.
+
+TEJAS 2026 is planned to be conducted on 9th and 10th October 2026
+
+Hackathon Main Theme: “AI Beyond Boundaries: Innovating for a Smarter, Inclusive and Sustainable Future”
+■ Event Overview
+• Event: TEJAS 2026 – AI Innovation Challenge / Hackathon & Codethon
+• Scope: Intra-Institutional Competition at SASTRA
+• Focus: Technology/AI-driven solutions aligned with selected UN Sustainable Development Goals (SDGs)
+■ Eligibility
+• Undergraduate: B.Tech – 2nd & 3rd Year students only, from all departments.
+• Postgraduate: 1st Year M.Tech students.
+• Postgraduate: 1st Year MCA students.
+• Postgraduate: 1st Year M.Sc. Data Science students.
+■ Team Size & Composition
+• Each team must consist of exactly 5 members.
+• All team members must belong to the same School within SASTRA (e.g., SoC, SEEE, SCBT, SoME, SoCE and M.Sc. Data Science).
+• One member must be designated as the Team Leader.
+• The Team Leader will be the primary contact person for registration and further communication.
+• Students must form a team of 5 members before completing the registration.
+• The Google Form must be filled and submitted only by the Team Leader on behalf of the complete team.
+
+Good Luck!!
+
+For further details contact chandramouli@sastra.edu
 """
  
-SAMPLE_LEGIT_2 = """From: GitHub <noreply@github.com>
-Subject: Your weekly digest
- 
-Hi there,
- 
-Here's your weekly activity summary. View it here:
- 
-http://github.com/notifications
- 
-Thanks,
-The GitHub Team
+SAMPLE_LEGIT_2 = """From: Prabakar T.N <prabakar@ece.sastra.edu>
+Date: Sat, Jul 25, 2026 at 9:02 PM
+Subject: Evening lab in SEEE - Starting
+To: Naren PR <prnaren@scbt.sastra.ac.in>, Dr. K. Thenmozhi . <thenmozhik@ece.sastra.edu>, Dr. N. S. Manigandan . <manigandanns@eie.sastra.edu>
+
+
+Dear Sir,
+Want to share the following information to all students.
+Like last semester, Evening lab [AI LAB in VV Block] is available till 7.30 PM for girls and 8.30 PM for boys like last semester. Please share the following with all the students. 
+**************************
+Dear Students,
+
+From today onwards, the Evening Lab will be open during the following hours:
+
+🕔 Girls: 5:15 PM – 7:30 PM
+🕗 Boys: 5:15 PM – 8:30 PM
+
+Please adhere to the following instructions:
+
+1. Use the lab internet only for academic and research-related work. Do not use it for  social media, entertainment, or any other non-academic/unwanted browsing.
+2. Enter your details correctly in the Lab Log Register, including both In Time and Out Time, every time you use the lab.
+3. Do not take or move any lab equipment, components, or other objects without prior permission from the Lab In-charge or the concerned staff.
+4. Maintain discipline, keep the lab clean, and use all laboratory resources responsibly and efficiently.
+
+Let's make the best use of this opportunity to enhance your learning and research.
+
+Make the best use of the same. All the best!
+*****************************
+
+With thanks & regards,
+Dr T N Prabakar
+Associate Professor / ECE
+SEEE, SASTRA
+Thanjavur 613401
+prabakar@ece.sastra.edu
+tnprabakar@gmail.com
++917010576716
 """
 if "raw_email_input" not in st.session_state:
     st.session_state.raw_email_input = ""
