@@ -26,6 +26,45 @@ It contains labeled phishing and legitimate emails with fields for sender, subje
 
 ---
 
+## 📈 Model Performance
+ 
+### Dataset class balance
+The dataset is close to balanced between the two classes, which avoids the need for
+class-weighting or resampling:
+ 
+![Class balance](Email-Phishing_and_Legitimate_count.png)
+ 
+| Class | Count (approx.) |
+|---|---|
+| Legitimate | ~1,500 |
+| Phishing | ~1,567 |
+ 
+### Confusion matrix (test set)
+ 
+![Confusion matrix](confusion_matrix.png)
+ 
+|  | Predicted: Legitimate | Predicted: Phishing |
+|---|---|---|
+| **Actual: Legitimate** | 293 | 7 |
+| **Actual: Phishing** | 8 | 305 |
+ 
+### Metrics
+ 
+| Metric | Phishing class | Legitimate class |
+|---|---|---|
+| Precision | 97.76% | 97.34% |
+| Recall | 97.44% | 97.67% |
+| F1-score | 97.60% | 97.50% |
+ 
+**Overall accuracy:** 97.55% (598 correct out of 613 test emails)
+ 
+> Only 7 legitimate emails were misclassified as phishing (false positives) and 8 phishing
+> emails were missed (false negatives) out of 613 held-out test emails — a strong result,
+> though see the [Limitations](#-known-limitations) section for context on generalization
+> to real-world emails outside this dataset's vocabulary.
+ 
+---
+
 ## 🏗️ How the project is structured
 
 | File | Purpose |
@@ -94,9 +133,26 @@ If you want to retrain the model on updated data, open `phishing_email_notebook.
 
 ---
 
+## ⚠️ Known Limitations
+ 
+- **Header dependency:** structural signals like sender-domain matching only work if the
+  pasted email includes proper headers (`From:`, `Subject:`, etc.). Plain body text copied
+  without headers will still get a prediction, but sender-based indicators won't fire.
+- **Dataset vocabulary is era- and source-specific:** the training data (Enron emails +
+  the Nazario phishing corpus) is from the early 2000s. Modern, vocabulary-light emails
+  (e.g. a short automated notification) may get less reliable text-based signal, since many
+  of their words never appeared in training.
+- **Domain-matching is an exact string comparison:** it does not normalize subdomain
+  prefixes like `www.`, which can occasionally cause a false positive when a legitimate
+  sender's links include a `www` subdomain their sender address doesn't.
+- **Not a certified detection system:** see the disclaimer below — this is a 
+  analysis prototype built for a club recruitment task, not a production security tool.
+
+---
+
 ## ⚠️ Disclaimer
 
-This is a college/hackathon research prototype, not a certified security tool. Predictions should not be relied upon as the sole basis for real-world security decisions.
+This is a club recruitment prototype, not a certified security tool. Predictions should not be relied upon as the sole basis for real-world security decisions.
 
 ---
 

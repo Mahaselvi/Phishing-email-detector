@@ -256,9 +256,9 @@ if analyze_clicked:
         # ---------- Result ----------
         st.divider()
         if prediction == 1:
-            st.error(f"⚠️ **Phishing detected**")# ({confidence:.1f}% confidence)")
+            st.error(f"⚠️ **Phishing detected**")
         else:
-            st.success(f"✅ **Looks legitimate**")# ({confidence:.1f}% confidence)")
+            st.success(f"✅ **Looks legitimate**")
 
         # ---------- Parsed fields----------
         with st.expander("Parsed email fields"):
